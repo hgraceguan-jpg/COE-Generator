@@ -135,7 +135,7 @@
         </div>
         <div class="field"><label>Position (ALL CAPS)</label><input type="text" id="s_position" placeholder="e.g. HUMAN RESOURCE GENERALIST" oninput="updateSingle()" /></div>
         <div class="field"><label>Department</label><input type="text" id="s_dept" value="HUMAN RESOURCES" oninput="updateSingle()" /></div>
-        <div class="field" style="flex-direction:row;align-items:center;gap:8px;"><label style="flex:none;"><input type="checkbox" id="s_inclSalary" onchange="document.getElementById('s_salaryWrap').style.display=this.checked?'block':'none';updateSingle();" /> Include salary line</label></div>
+        <div style="margin-bottom:9px;display:flex;align-items:center;gap:7px;"><input type="checkbox" id="s_inclSalary" onchange="document.getElementById('s_salaryWrap').style.display=this.checked?'block':'none';updateSingle();" style="margin:0;cursor:pointer;width:14px;height:14px;flex-shrink:0;" /><label for="s_inclSalary" style="font-size:11px;font-weight:600;color:#444;letter-spacing:.3px;margin:0;cursor:pointer;">Include salary line</label></div>
         <div class="field" id="s_salaryWrap" style="display:none;"><label>Monthly Salary Amount (Php)</label><input type="text" id="s_salary" placeholder="e.g. 25,000.00" oninput="updateSingle()" /></div>
         <div class="field"><label>Company</label>
           <select id="s_company" onchange="onCompanyChange()">
@@ -148,6 +148,8 @@
         </div>
         <div class="field" id="s_company_custom_wrap" style="display:none;"><label>Custom Company Name</label><input type="text" id="s_company_custom" placeholder="Enter company name" oninput="updateSingle()" /></div>
         <div class="field"><label>Date Started</label><input type="date" id="s_startDate" value="2025-07-14" oninput="updateSingle()" /></div>
+        <div style="margin-bottom:9px;display:flex;align-items:center;gap:7px;"><input type="checkbox" id="s_resigned" onchange="toggleResigned('s');updateSingle();" style="margin:0;cursor:pointer;width:14px;height:14px;flex-shrink:0;" /><label for="s_resigned" style="font-size:11px;font-weight:600;color:#444;letter-spacing:.3px;margin:0;cursor:pointer;">Former Employee (Resigned)</label></div>
+        <div class="field" id="s_endDate_wrap" style="display:none;"><label>End Date (Last Day)</label><input type="date" id="s_endDate" oninput="updateSingle()" /></div>
         <div class="section-label">Certificate Details</div>
         <div class="field"><label>Issue Date</label><input type="date" id="s_issueDate" value="2026-06-23" oninput="updateSingle()" /></div>
         <div class="field"><label>Purpose</label><input type="text" id="s_purpose" value="Company International Outing" oninput="updateSingle()" /></div>
@@ -196,7 +198,7 @@ nanan.jumaoas@infosoft.com.ph
       </div>
       <div class="panel-footer">
         <div class="section-label" style="margin:0 0 8px;">Shared COE Settings</div>
-        <div class="field" style="flex-direction:row;align-items:center;gap:8px;"><label style="flex:none;"><input type="checkbox" id="b_inclSalary" onchange="document.getElementById('b_salaryWrap').style.display=this.checked?'block':'none';refreshBulkPreview();" /> Include salary line</label></div>
+        <div style="margin-bottom:9px;display:flex;align-items:center;gap:7px;"><input type="checkbox" id="b_inclSalary" onchange="document.getElementById('b_salaryWrap').style.display=this.checked?'block':'none';refreshBulkPreview();" style="margin:0;cursor:pointer;width:14px;height:14px;flex-shrink:0;" /><label for="b_inclSalary" style="font-size:11px;font-weight:600;color:#444;letter-spacing:.3px;margin:0;cursor:pointer;">Include salary line</label></div>
         <div class="field" id="b_salaryWrap" style="display:none;"><label>Monthly Salary Amount (Php)</label><input type="text" id="b_salary" placeholder="e.g. 25,000.00" oninput="refreshBulkPreview()" /></div>
         <div class="field"><label>Issue Date</label><input type="date" id="b_issueDate" value="2026-06-23" oninput="refreshBulkPreview()" /></div>
         <div class="field"><label>Purpose</label><input type="text" id="b_purpose" value="Company International Outing" oninput="refreshBulkPreview()" /></div>
@@ -280,8 +282,13 @@ function buildCOEHtml(emp,shared,pageBreak){
   var logoHeight=typeof logoData==="object"?logoData.height:65;
   var inclSalary=shared.inclSalary||false;
   var salary=emp.salary||shared.salary||"";
-  var p1="This is to certify that "+b(name)+" is an employee of "+b(company)+" since "+(formatDate(startDate)||"[Start Date]")+". "+pronoun+" is currently holding the position of "+b(position)+", under the "+dept+"."+(inclSalary?" "+possPronoun+" estimated gross monthly salary is computed at Php "+(salary||"_____________")+".":" ");
-  var pPhrase=(dateFrom&&dateTo)?"for "+purpose+" from "+formatDate(dateFrom)+" to "+formatDate(dateTo):dateFrom?"for "+purpose+" on "+formatDate(dateFrom):"for "+purpose+" purpose only";
+  var endDate=emp.endDate||"";
+  var resigned=!!(emp.resigned)||(!!endDate&&!!endDate.trim());
+  var p1=resigned
+    ?"This is to certify that "+b(name)+" was an employee of "+b(company)+" from "+(formatDate(startDate)||"[Start Date]")+" to "+b(formatDate(endDate)||"[End Date]")+". "+pronoun+" held the position of "+b(position)+", under the "+dept+"."+(inclSalary?" "+possPronoun+" estimated gross monthly salary was Php "+(salary||"_____________")+".":" ")
+    :"This is to certify that "+b(name)+" is an employee of "+b(company)+" since "+(formatDate(startDate)||"[Start Date]")+". "+pronoun+" is currently holding the position of "+b(position)+", under the "+dept+"."+(inclSalary?" "+possPronoun+" estimated gross monthly salary is computed at Php "+(salary||"_____________")+".":" ");
+  var objPronoun=gender==="Male"?"him":"her";
+  var pPhrase=resigned?"for whatever legal purpose it may serve "+objPronoun:(dateFrom&&dateTo)?"for "+purpose+" from "+formatDate(dateFrom)+" to "+formatDate(dateTo):dateFrom?"for "+purpose+" on "+formatDate(dateFrom):"for "+purpose+" purpose only";
   var p2="This certification is being issued upon the request of "+b(sal+" "+lastName)+" "+pPhrase+".";
   var iss=issuedParts(issueDate);
   var p3="Given this "+iss.day+" day of "+iss.month+" "+iss.year+" at "+address+".";
@@ -319,11 +326,16 @@ function onCompanyChange(){
   if(v!=="custom"&&COMPANY_CONTACTS[v]){document.getElementById("s_sigContact").value=COMPANY_CONTACTS[v];}
   updateSingle();
 }
+function toggleResigned(prefix){
+  var checked=document.getElementById(prefix+"_resigned").checked;
+  document.getElementById(prefix+"_endDate_wrap").style.display=checked?"block":"none";
+}
 function getSingleEmp(){
   var cv=document.getElementById("s_company").value;
   var company=cv==="custom"?(document.getElementById("s_company_custom").value||"COMPANY"):cv;
   var name=document.getElementById("s_name").value.trim().toUpperCase()||"EMPLOYEE NAME";
-  return{name:name,gender:document.getElementById("s_gender").value,position:document.getElementById("s_position").value,department:document.getElementById("s_dept").value,company:company,startDate:document.getElementById("s_startDate").value,lastName:extractLastName(name)};
+  var resigned=document.getElementById("s_resigned").checked;
+  return{name:name,gender:document.getElementById("s_gender").value,position:document.getElementById("s_position").value,department:document.getElementById("s_dept").value,company:company,startDate:document.getElementById("s_startDate").value,endDate:resigned?document.getElementById("s_endDate").value:"",resigned:resigned,lastName:extractLastName(name)};
 }
 function getSingleShared(){
   return{issueDate:document.getElementById("s_issueDate").value,purpose:document.getElementById("s_purpose").value,dateFrom:document.getElementById("s_dateFrom").value,dateTo:document.getElementById("s_dateTo").value,address:document.getElementById("s_address").value,inclSalary:document.getElementById("s_inclSalary").checked,salary:document.getElementById("s_salary").value,sigName:document.getElementById("s_sigName").value,sigTitle:document.getElementById("s_sigTitle").value,sigDept:document.getElementById("s_sigDept").value,sigContact:document.getElementById("s_sigContact").value};
@@ -344,6 +356,9 @@ function resetSingle(){
   document.getElementById("s_company").value="INFOSOFT CONSULTING CORP.";
   document.getElementById("s_company_custom_wrap").style.display="none";
   document.getElementById("s_startDate").value="2025-07-14";
+  document.getElementById("s_resigned").checked=false;
+  document.getElementById("s_endDate").value="";
+  document.getElementById("s_endDate_wrap").style.display="none";
   document.getElementById("s_issueDate").value="2026-06-23";
   document.getElementById("s_purpose").value="Company International Outing";
   document.getElementById("s_dateFrom").value="2026-08-20";
@@ -361,15 +376,15 @@ var employees=[],selectedIdx=-1;
 function downloadTemplate(){
   if(typeof XLSX==="undefined"){alert("Loading... try again.");return;}
   var ws_data=[
-    ["Full Name","Gender","Position","Department","Company","Date Started","Date Issued","Monthly Salary"],
-    ["JUAN DELA CRUZ","Male","SOFTWARE DEVELOPER","INFORMATION TECHNOLOGY","Infosoft Consulting Corp.","2024-01-15","2026-06-23",""],
-    ["MARIA SANTOS","Female","HR SPECIALIST","HUMAN RESOURCES","Acceltech Philippines Inc.","2023-06-01","2026-06-23",""],
-    ["ANA REYES","Female","GRAPHIC DESIGNER","CREATIVE","Dimensions Business Technologies Phils., Corp.","2024-03-10","2026-06-23",""],
-    ["JOSE GARCIA","Male","QA ENGINEER","QUALITY ASSURANCE","Kassa Technologies Inc.","2022-09-05","2026-06-23",""]
+    ["Full Name","Gender","Position","Department","Company","Date Started","Date Issued","Monthly Salary","End Date"],
+    ["JUAN DELA CRUZ","Male","SOFTWARE DEVELOPER","INFORMATION TECHNOLOGY","Infosoft Consulting Corp.","2024-01-15","2026-06-23","",""],
+    ["MARIA SANTOS","Female","HR SPECIALIST","HUMAN RESOURCES","Acceltech Philippines Inc.","2023-06-01","2026-06-23","",""],
+    ["ANA REYES","Female","GRAPHIC DESIGNER","CREATIVE","Dimensions Business Technologies Phils., Corp.","2024-03-10","2026-06-23","",""],
+    ["JOSE GARCIA","Male","QA ENGINEER","QUALITY ASSURANCE","Kassa Technologies Inc.","2022-09-05","2026-06-23","","2025-12-31"]
   ];
   var wb=XLSX.utils.book_new();
   var ws=XLSX.utils.aoa_to_sheet(ws_data);
-  ws["!cols"]=[{wch:30},{wch:10},{wch:35},{wch:30},{wch:50},{wch:16},{wch:16},{wch:18}];
+  ws["!cols"]=[{wch:30},{wch:10},{wch:35},{wch:30},{wch:50},{wch:16},{wch:16},{wch:18},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws,"Employees");
   XLSX.writeFile(wb,"COE_Bulk_Template.xlsx");
 }
@@ -394,7 +409,7 @@ function processFile(file){
     if(rows.length<2){alert("File appears empty.");return;}
     var headers=rows[0].map(function(h){return(h||"").toLowerCase().replace(/[\s_-]/g,"");});
     function col(key){
-      var aliases={fullname:["fullname","name","employeename"],gender:["gender","sex"],position:["position","jobtitle","title","role"],department:["department","dept"],company:["company","employer","organization"],startdate:["startdate","datestarted","hiredate"],dateissued:["dateissued","issueddate","issuedate","dateofdissuance","issued"],monthlysalary:["monthlysalary","salary","grosssalary","monthlypay","basicpay","basicmonthly"]};
+      var aliases={fullname:["fullname","name","employeename"],gender:["gender","sex"],position:["position","jobtitle","title","role"],department:["department","dept"],company:["company","employer","organization"],startdate:["startdate","datestarted","hiredate"],dateissued:["dateissued","issueddate","issuedate","dateofdissuance","issued"],monthlysalary:["monthlysalary","salary","grosssalary","monthlypay","basicpay","basicmonthly"],enddate:["enddate","dateended","resignationdate","lastday","separationdate","dateresigned"]};
       var list=aliases[key]||[key];
       for(var i=0;i<list.length;i++){var idx=headers.indexOf(list[i]);if(idx>=0)return idx;}
       return -1;
@@ -409,7 +424,7 @@ function processFile(file){
       var cmap={"INFOSOFT":["INFOSOFT"],"ACCELTECH":["ACCELTECH"],"KASSA":["KASSA","KASSATECH"],"DIMENSIONS":["DIMENSIONS"]};
       var canon={"INFOSOFT":"INFOSOFT CONSULTING CORP.","ACCELTECH":"ACCELTECH PHILIPPINES INC.","KASSA":"KASSA TECHNOLOGIES INC.","DIMENSIONS":"DIMENSIONS BUSINESS TECHNOLOGIES PHILS., CORP."};
       for(var k in cmap){if(cmap[k].some(function(v){return company.indexOf(v)>=0;})){company=canon[k];break;}}
-      parsed.push({name:name,lastName:extractLastName(name),gender:get(row,"gender")||"Female",position:(get(row,"position")||"").toUpperCase().trim(),department:(get(row,"department")||"HUMAN RESOURCES").toUpperCase().trim(),company:company,startDate:get(row,"startdate")||"",issueDate:get(row,"dateissued")||"",salary:get(row,"monthlysalary")||""});
+      parsed.push({name:name,lastName:extractLastName(name),gender:get(row,"gender")||"Female",position:(get(row,"position")||"").toUpperCase().trim(),department:(get(row,"department")||"HUMAN RESOURCES").toUpperCase().trim(),company:company,startDate:get(row,"startdate")||"",issueDate:get(row,"dateissued")||"",salary:get(row,"monthlysalary")||"",endDate:get(row,"enddate")||""});
     }
     if(!parsed.length){alert("No valid rows found. Check column headers match the template.");return;}
     employees=parsed;selectedIdx=0;
@@ -483,6 +498,8 @@ function buildCOEWordContent(emp,shared){
   var sigContact=shared.sigContact||INFOSOFT_CONTACT;
   var inclSalary=shared.inclSalary||false;
   var salary=emp.salary||shared.salary||"";
+  var endDate=emp.endDate||"";
+  var resigned=!!(emp.resigned)||(!!endDate&&!!endDate.trim());
   var logoData=LOGOS[company]||LOGOS["INFOSOFT CONSULTING CORP."]||{src:"",height:65};
   var logoSrc=typeof logoData==="object"?logoData.src:logoData;
   var logoH=typeof logoData==="object"?Math.round(logoData.height*0.8):52;
@@ -490,10 +507,12 @@ function buildCOEWordContent(emp,shared){
   var footerCompany=COMPANY_DISPLAY[company]||company;
   var isInfosoft=company==="INFOSOFT CONSULTING CORP.";
   var footerColor=isInfosoft?"#c0392b":"#1a5fa8";
-  var pPhrase=(dateFrom&&dateTo)?"for "+purpose+" from "+formatDate(dateFrom)+" to "+formatDate(dateTo):dateFrom?"for "+purpose+" on "+formatDate(dateFrom):"for "+purpose+" purpose only";
+  var objPronoun=gender==="Male"?"him":"her";
+  var pPhrase=resigned?"for whatever legal purpose it may serve "+objPronoun:(dateFrom&&dateTo)?"for "+purpose+" from "+formatDate(dateFrom)+" to "+formatDate(dateTo):dateFrom?"for "+purpose+" on "+formatDate(dateFrom):"for "+purpose+" purpose only";
   var iss=issuedParts(issueDate);
-  var salLine=inclSalary?" "+possPronoun+" estimated gross monthly salary is computed at Php <b>"+(salary||"_____________")+"</b>.":"";
-  var p1="This is to certify that <b>"+name+"</b> is an employee of <b>"+company+"</b> since <b>"+(formatDate(startDate)||"[Start Date]")+"</b>. "+pronoun+" is currently holding the position of <b>"+position+"</b>, under the "+dept+"."+salLine;
+  var p1=resigned
+    ?"This is to certify that <b>"+name+"</b> was an employee of <b>"+company+"</b> from <b>"+(formatDate(startDate)||"[Start Date]")+"</b> to <b>"+(formatDate(endDate)||"[End Date]")+"</b>. "+pronoun+" held the position of <b>"+position+"</b>, under the "+dept+"."+(inclSalary?" "+possPronoun+" estimated gross monthly salary was Php <b>"+(salary||"_____________")+"</b>.":"")
+    :"This is to certify that <b>"+name+"</b> is an employee of <b>"+company+"</b> since <b>"+(formatDate(startDate)||"[Start Date]")+"</b>. "+pronoun+" is currently holding the position of <b>"+position+"</b>, under the "+dept+"."+(inclSalary?" "+possPronoun+" estimated gross monthly salary is computed at Php <b>"+(salary||"_____________")+"</b>.":"");
   var p2="This certification is being issued upon the request of <b>"+sal+" "+lastName+"</b> "+pPhrase+".";
   var p3="Given this "+iss.day+" day of "+iss.month+" "+iss.year+" at "+address+".";
   var contactHtml=sigContact.split("\n").filter(function(l){return l.trim();}).map(function(l){return "<p style='margin:0;padding:0;font-size:10pt;font-family:Arial,sans-serif;'>"+l.trim()+"</p>";}).join("");
