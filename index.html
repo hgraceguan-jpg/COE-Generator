@@ -7,6 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Segoe UI", Arial, sans-serif; background: #f0f2f5; color: #222; font-size: 13px; }
@@ -573,27 +574,35 @@ function downloadSingleWord(){
 }
 async function downloadAllWord(){
   if(!employees.length){alert("No employees loaded.");return;}
+  if(typeof JSZip==="undefined"){alert("ZIP library still loading. Please try again.");return;}
   var btn=document.getElementById("btnDownloadWord");
   btn.disabled=true;var orig=btn.textContent;
   var shared=getBulkShared();
+  var zip=new JSZip();
   for(var i=0;i<employees.length;i++){
     var emp=employees[i];
     btn.textContent="Generating "+(i+1)+"/"+employees.length+"...";
     var lastName=(emp.lastName||emp.name.split(/\s+/).pop()||"EMPLOYEE").toUpperCase().replace(/[^A-Z0-9]/g,"");
-    saveWordBlob(buildCOEWordContent(emp,shared),lastName+"_COE.doc");
-    await new Promise(function(r){setTimeout(r,400);});
+    var content='﻿'+buildCOEWordContent(emp,shared);
+    zip.file(lastName+"_COE.doc",content);
+    await new Promise(function(r){setTimeout(r,80);});
   }
+  btn.textContent="Zipping...";
+  var blob=await zip.generateAsync({type:"blob"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="COE_Bulk_Word.zip";a.click();URL.revokeObjectURL(a.href);
   btn.disabled=false;btn.textContent=orig;
 }
 async function downloadAllPDFs(){
   if(!employees.length){alert("No employees loaded.");return;}
   if(typeof html2canvas==="undefined"||typeof window.jspdf==="undefined"){alert("PDF libraries still loading. Please wait a moment and try again.");return;}
+  if(typeof JSZip==="undefined"){alert("ZIP library still loading. Please try again.");return;}
   var btn=document.getElementById("btnDownloadPDFs");
   btn.disabled=true;
   var origText=btn.textContent;
   var shared=getBulkShared();
   var renderDiv=document.getElementById("pdfRenderArea");
   var {jsPDF}=window.jspdf;
+  var zip=new JSZip();
   for(var i=0;i<employees.length;i++){
     var emp=employees[i];
     btn.textContent="Generating "+(i+1)+"/"+employees.length+"...";
@@ -609,11 +618,14 @@ async function downloadAllPDFs(){
       if(pdfH>297){pdfH=297;}
       pdf.addImage(imgData,"JPEG",0,0,pdfW,pdfH);
       var lastName=(emp.lastName||emp.name.split(/\s+/).pop()||"EMPLOYEE").toUpperCase().replace(/[^A-Z0-9]/g,"");
-      pdf.save(lastName+"_COE.pdf");
-      await new Promise(function(r){setTimeout(r,400);});
+      zip.file(lastName+"_COE.pdf",pdf.output("arraybuffer"));
+      await new Promise(function(r){setTimeout(r,200);});
     }catch(e){console.error("PDF error for "+emp.name,e);}
   }
   renderDiv.innerHTML="";
+  btn.textContent="Zipping...";
+  var blob=await zip.generateAsync({type:"blob"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="COE_Bulk_PDF.zip";a.click();URL.revokeObjectURL(a.href);
   btn.disabled=false;
   btn.textContent=origText;
 }
