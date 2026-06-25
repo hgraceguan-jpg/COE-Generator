@@ -4,15 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>COE Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Segoe UI", Arial, sans-serif; background: #f0f2f5; color: #222; font-size: 13px; }
+    body { font-family: "Poppins", "Segoe UI", Arial, sans-serif; font-weight: 300; background: #f0f2f5; color: #222; font-size: 13px; }
     .app-header { background: #1a1a2e; color: #fff; padding: 0 28px; display: flex; align-items: center; height: 52px; gap: 0; }
-    .app-title { font-size: 15px; font-weight: 700; letter-spacing: .4px; }
+    .app-title { font-family: "Poppins", sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .4px; }
     .app-brand { font-size: 11px; opacity: .5; font-weight: 500; margin-right: auto; }
     .header-sep { font-size: 11px; opacity: .3; margin: 0 10px; }
     .tabs { display: flex; gap: 4px; }
@@ -63,35 +66,35 @@
     .emp-sub { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .emp-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 14px; padding: 0 2px; }
     .emp-del:hover { color: #c0392b; }
-    .coe-doc { background: #fff; width: 794px; min-height: 1123px; padding: 72px 90px 90px; box-shadow: 0 4px 32px rgba(0,0,0,.14); font-family: "Times New Roman", Times, serif; font-size: 16px; line-height: 1.7; color: #111; position: relative; box-sizing: border-box; }
+    .coe-doc { background: #fff; width: 794px; min-height: 1123px; padding: 72px 90px 90px; box-shadow: 0 4px 32px rgba(0,0,0,.14); font-family: "Poppins", "Segoe UI", Arial, sans-serif; font-weight: 300; font-size: 10pt; line-height: 1.8; color: #111; position: relative; box-sizing: border-box; }
     .coe-doc.page-break { page-break-after: always; }
     .coe-logo { text-align: center; margin-bottom: 68px; }
     .coe-logo img { max-width: 400px; object-fit: contain; display: block; margin: 0 auto; }
     .coe-title-wrap { text-align: center; margin-bottom: 50px; }
-    .coe-title { font-size: 18px; font-weight: 400; letter-spacing: 9px; text-transform: uppercase; border-bottom: 1.5px solid #111; display: inline-block; padding-bottom: 3px; font-family: Arial, sans-serif; }
-    .coe-twmic { font-family: "Times New Roman", Times, serif; font-size: 16px; margin-bottom: 20px; }
-    .coe-body p { margin-bottom: 28px; text-align: justify; }
+    .coe-title { font-size: 18px; font-weight: 700; letter-spacing: 9px; text-transform: uppercase; border-bottom: 1.5px solid #111; display: inline-block; padding-bottom: 3px; font-family: "Poppins", Arial, sans-serif; }
+    .coe-twmic { font-family: "Poppins", Arial, sans-serif; font-weight: 300; font-size: 10pt; margin-bottom: 20px; }
+    .coe-body p { margin-bottom: 28px; text-align: justify; font-size: 10pt; }
     .coe-hl { background: #fff176; padding: 1px 3px; border-radius: 2px; font-weight: 700; }
     .coe-body p.issued { margin-bottom: 52px; }
     .bold { font-weight: 700; }
     .coe-signatory { margin-top: 4px; }
     .sig-space { height: 64px; }
-    .sig-name { font-weight: 700; font-size: 16px; font-family: Arial, sans-serif; display: inline-block; border-top: 1.5px solid #111; padding-top: 4px; }
-    .sig-title { font-size: 15px; font-family: Arial, sans-serif; }
-    .sig-contact { font-size: 13px; font-family: Arial, sans-serif; line-height: 1.55; margin-top: 14px; color: #111; }
+    .sig-name { font-weight: 700; font-size: 10pt; font-family: "Poppins", Arial, sans-serif; display: inline-block; border-top: 1.5px solid #111; padding-top: 4px; }
+    .sig-title { font-size: 10pt; font-family: "Poppins", Arial, sans-serif; font-weight: 300; }
+    .sig-contact { font-size: 9pt; font-family: "Poppins", Arial, sans-serif; font-weight: 300; line-height: 1.55; margin-top: 14px; color: #111; }
     .sig-contact-company { font-weight: 700; }
     .sig-contact-email { color: #1a0dab; text-decoration: underline; }
-    .coe-footer { position: absolute; bottom: 36px; left: 90px; right: 90px; border-top: 1.5px solid #aaa; padding-top: 6px; display: flex; align-items: baseline; gap: 10px; }
-    .coe-footer-name { font-weight: 700; font-size: 12px; font-family: Arial, sans-serif; color: #111; }
-    .coe-footer-sub { font-size: 11px; font-family: Arial, sans-serif; color: #c0392b; }
+    .coe-footer { position: absolute; bottom: 36px; left: 90px; right: 90px; border-top: 1.5px solid #aaa; padding-top: 3px; display: flex; flex-direction: column; gap: 0px; }
+    .coe-footer-name { font-weight: 700; font-size: 11px; font-family: "Poppins", Arial, sans-serif; color: #111; line-height: 1.2; margin-bottom: 0; }
+    .coe-footer-sub { font-size: 10px; font-family: "Poppins", Arial, sans-serif; font-weight: 300; line-height: 1.2; margin-top: -1px; }
     #printArea { display: none; }
     @media print {
       body > * { display: none !important; }
       #printArea { display: block !important; }
-      .coe-doc { box-shadow: none !important; width: 100% !important; padding: 56px 72px !important; font-size: 12pt !important; line-height: 1.7 !important; min-height: auto !important; }
+      .coe-doc { box-shadow: none !important; width: 100% !important; padding: 56px 72px !important; font-family: "Poppins", Arial, sans-serif !important; font-weight: 300 !important; font-size: 10pt !important; line-height: 1.8 !important; min-height: auto !important; }
       .coe-logo img { max-width: 380px !important; object-fit: contain; }
-      .sig-name { font-size: 12pt !important; display: inline-block !important; border-top: 1.5px solid #111 !important; padding-top: 4px !important; }
-      .sig-title { font-size: 11pt !important; }
+      .sig-name { font-size: 10pt !important; display: inline-block !important; border-top: 1.5px solid #111 !important; padding-top: 4px !important; }
+      .sig-title { font-size: 10pt !important; }
       .sig-contact { font-size: 9pt !important; }
       .coe-footer { position: absolute !important; bottom: 28px !important; left: 72px !important; right: 72px !important; }
       .coe-footer-name { font-size: 9pt !important; }
@@ -558,8 +561,8 @@ function buildCOEWordContent(emp,shared){
     +"<p style='margin:0 0 10pt 0;font-family:Arial,sans-serif;font-size:11pt;'>"+sigTitle+"</p>"
     +contactHtml
     +"<p style='margin-top:20pt;border-top:1pt solid #aaa;padding-top:4pt;'>"
-    +"<span style='font-weight:bold;font-size:10pt;font-family:Arial,sans-serif;'>"+footerCompany+"</span>&nbsp;&nbsp;"
-    +"<span style='color:"+footerColor+";font-size:9pt;font-family:Arial,sans-serif;'>Certificate of Employment</span>"
+    +"<span style='display:block;font-weight:bold;font-size:10pt;font-family:Arial,sans-serif;color:#111;'>"+footerCompany+"</span>"
+    +"<span style='display:block;color:"+footerColor+";font-size:9pt;font-family:Arial,sans-serif;'>Certificate of Employment</span>"
     +"</p>"
     +"</body></html>";
 }
